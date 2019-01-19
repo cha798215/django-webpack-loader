@@ -77,7 +77,15 @@ class WebpackLoader(object):
                 )
 
         if assets.get('status') == 'done':
-            chunks = assets['chunks'].get(bundle_name, None)
+            entrypoint = assets['entrypoints'].get(bundle_name)
+            if not entrypoint:
+                chunks = assets['chunks'].get(bundle_name)
+            else:
+                chunks = []
+                for chunk_name in entrypoint:
+                    chunk = assets['chunks'].get(chunk_name)
+                    if chunk:
+                        chunks += chunk
             if chunks is None:
                 raise WebpackBundleLookupError('Cannot resolve bundle {0}.'.format(bundle_name))
             return self.filter_chunks(chunks)
